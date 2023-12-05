@@ -3,7 +3,7 @@ use std::ops::Index;
 
 #[derive(Clone, Debug)]
 pub struct Chromosome {
-    genes: Vec<f32>,
+    pub genes: Vec<f32>,
 }
 
 impl Chromosome {
@@ -13,6 +13,10 @@ impl Chromosome {
 
     pub fn len(&self) -> usize {
         self.genes.len()
+    }
+
+    pub fn genes(&self) -> &Vec<f32> {
+        &self.genes
     }
 
     pub fn iter(&self) -> impl Iterator<Item = &f32> {

@@ -1,4 +1,4 @@
-pub use self::{chromosome::*, crossover::*, individual::*, mutation::*, selection::*};
+pub use self::{chromosome::*, crossover::*, individual::*, mutation::*, selection::*, statistics::*};
 
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -9,6 +9,7 @@ mod crossover;
 mod individual;
 mod mutation;
 mod selection;
+mod statistics;
 
 pub struct GeneticAlgorithm<S, C, M> {
     selection_method: S,
@@ -30,11 +31,13 @@ where
         }
     }
 
-    pub fn evolve<I>(&self, rng: &mut dyn RngCore, population: &[I]) -> Vec<I>
+    pub fn evolve<I>(&self, rng: &mut dyn RngCore, population: &[I]) -> (Vec<I>, Statistics)
     where
         I: Individual,
     {
         assert!(!population.is_empty());
+
+        let stats = Statistics::new(population);
 
         let mut offspring = Vec::with_capacity(population.len());
         for _ in 0..population.len() {
@@ -54,7 +57,7 @@ where
             offspring.push(I::from_chromosome(child));
         }
 
-        offspring
+        (offspring, stats)
     }
 }
 
@@ -90,7 +93,7 @@ mod tests {
         ];
 
         for _ in 0..10 {
-            population = ga.evolve(&mut rng, &population);
+            population = ga.evolve(&mut rng, &population).0;
         }
 
         let expected = vec![
