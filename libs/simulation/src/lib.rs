@@ -12,17 +12,19 @@ use nalgebra as na;
 use rand::{Rng, RngCore};
 use std::f32::consts::FRAC_PI_2;
 
-const MIN_SPEED:f32 = 0.001;
-const MAX_SPEED:f32 = 0.003;
+const MIN_SPEED: f32 = 0.001;
+const MAX_SPEED: f32 = 0.003;
 const SPEED_ACCEL: f32 = 0.02;
 const ROTATION_ACCEL: f32 = FRAC_PI_2;
 const GENERATION_LENGTH: usize = 2500;
 
 pub struct Simulation {
     world: World,
-    ga: ga::GeneticAlgorithm<ga::RouletteWheelSelection,
-    ga::UniformCrossover,
-    ga::GaussianMutation>,
+    ga: ga::GeneticAlgorithm<
+        ga::RouletteWheelSelection,
+        ga::UniformCrossover,
+        ga::GaussianMutation,
+    >,
     age: usize,
 }
 
@@ -73,12 +75,11 @@ impl Simulation {
 
     fn process_brains(&mut self) {
         for animal in &mut self.world.animals {
-            let vision = animal.eye.process_vision(
-                animal.position,
-                animal.rotation,
-                &self.world.foods,
-            );
-            
+            let vision =
+                animal
+                    .eye
+                    .process_vision(animal.position, animal.rotation, &self.world.foods);
+
             let adjustment = animal.brain.propogate(vision);
 
             let delta_speed = adjustment[0].clamp(-SPEED_ACCEL, SPEED_ACCEL);
@@ -106,12 +107,20 @@ impl Simulation {
         }
     }
 
-    fn evolve(&mut self, rng: &mut dyn RngCore) -> ga::Statistics{
-        let animal_individuals: Vec<_> = self.world.animals.iter().map( AnimalIndividual::from_animal).collect();
+    fn evolve(&mut self, rng: &mut dyn RngCore) -> ga::Statistics {
+        let animal_individuals: Vec<_> = self
+            .world
+            .animals
+            .iter()
+            .map(AnimalIndividual::from_animal)
+            .collect();
 
         let (new_population, stats) = self.ga.evolve(rng, &animal_individuals);
 
-        self.world.animals = new_population.into_iter().map(|individual| individual.to_animal(rng)).collect();
+        self.world.animals = new_population
+            .into_iter()
+            .map(|individual| individual.to_animal(rng))
+            .collect();
 
         for food in &mut self.world.foods {
             food.position = rng.gen();

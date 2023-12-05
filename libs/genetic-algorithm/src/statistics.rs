@@ -8,7 +8,10 @@ pub struct Statistics {
 }
 
 impl Statistics {
-    pub fn new<I>(population: &[I]) -> Self where I: Individual, {
+    pub fn new<I>(population: &[I]) -> Self
+    where
+        I: Individual,
+    {
         assert!(!population.is_empty());
 
         let population_size = population.len();

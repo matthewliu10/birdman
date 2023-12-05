@@ -10,7 +10,7 @@ pub struct Brain {
 impl Brain {
     pub fn random(rng: &mut dyn RngCore, input_size: usize) -> Self {
         Self {
-            nn: nn::Network::random(rng, &Self::topology(input_size))
+            nn: nn::Network::random(rng, &Self::topology(input_size)),
         }
     }
 
@@ -22,7 +22,7 @@ impl Brain {
     pub(crate) fn from_chromosome(input_size: usize, chromosome: ga::Chromosome) -> Self {
         let layer_info = Self::topology(input_size);
         let nn = nn::Network::from_weights(&layer_info, chromosome.genes);
-        
+
         Self { nn }
     }
 

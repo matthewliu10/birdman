@@ -1,4 +1,6 @@
-pub use self::{chromosome::*, crossover::*, individual::*, mutation::*, selection::*, statistics::*};
+pub use self::{
+    chromosome::*, crossover::*, individual::*, mutation::*, selection::*, statistics::*,
+};
 
 use rand::seq::SliceRandom;
 use rand::Rng;
