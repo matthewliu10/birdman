@@ -41,15 +41,17 @@ impl Network {
         self.layers.iter().flat_map(|layer| layer.weights()).collect()
     }
 
-    pub fn from_weights(layer_info: &[usize], weights: impl IntoIterator<Item = f32>) -> Self {
+    pub fn from_weights(layer_info: &[usize], weights: Vec<f32>) -> Self {
+        let mut expected_num_weights = 0;
+        for i in 1..(layer_info.len()) {
+            expected_num_weights += layer_info[i];
+            expected_num_weights += layer_info[i] * layer_info[i - 1];
+        }
         assert!(layer_info.len() > 1);
+        assert!(expected_num_weights == weights.len());
 
         let mut weights = weights.into_iter();
         let layers = layer_info.windows(2).map(|layers| Layer::from_weights(layers[0], layers[1], &mut weights)).collect();
-
-        if weights.next().is_some() {
-            panic!("too many weights");
-        }
 
         Self { layers }
     }
