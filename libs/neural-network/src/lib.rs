@@ -38,7 +38,10 @@ impl Network {
     }
 
     pub fn weights(&self) -> Vec<f32> {
-        self.layers.iter().flat_map(|layer| layer.weights()).collect()
+        self.layers
+            .iter()
+            .flat_map(|layer| layer.weights())
+            .collect()
     }
 
     pub fn from_weights(layer_info: &[usize], weights: Vec<f32>) -> Self {
@@ -51,7 +54,10 @@ impl Network {
         assert!(expected_num_weights == weights.len());
 
         let mut weights = weights.into_iter();
-        let layers = layer_info.windows(2).map(|layers| Layer::from_weights(layers[0], layers[1], &mut weights)).collect();
+        let layers = layer_info
+            .windows(2)
+            .map(|layers| Layer::from_weights(layers[0], layers[1], &mut weights))
+            .collect();
 
         Self { layers }
     }

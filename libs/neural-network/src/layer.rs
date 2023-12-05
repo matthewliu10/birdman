@@ -32,11 +32,20 @@ impl Layer {
     }
 
     pub fn weights(&self) -> Vec<f32> {
-        self.neurons.iter().flat_map(|neuron| neuron.weights()).collect()
+        self.neurons
+            .iter()
+            .flat_map(|neuron| neuron.weights())
+            .collect()
     }
 
-    pub fn from_weights(num_inputs: usize, num_neurons: usize, weights: &mut dyn Iterator<Item = f32>) -> Self {
-        let neurons = (0..num_neurons).map(|_| Neuron::from_weights(num_inputs, weights)).collect();
+    pub fn from_weights(
+        num_inputs: usize,
+        num_neurons: usize,
+        weights: &mut dyn Iterator<Item = f32>,
+    ) -> Self {
+        let neurons = (0..num_neurons)
+            .map(|_| Neuron::from_weights(num_inputs, weights))
+            .collect();
 
         Self { neurons }
     }

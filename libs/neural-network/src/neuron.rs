@@ -41,18 +41,17 @@ impl Neuron {
 
     pub fn from_weights(num_weights: usize, weights: &mut dyn Iterator<Item = f32>) -> Self {
         let bias = weights.next().expect("not enough weights");
-        let weights = (0..num_weights).map(|_| weights.next().expect("not enough weights")).collect();
+        let weights = (0..num_weights)
+            .map(|_| weights.next().expect("not enough weights"))
+            .collect();
 
-        Self {
-            bias,
-            weights,
-        }
+        Self { bias, weights }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;   
+    use super::*;
     use approx::assert_relative_eq;
     use rand::SeedableRng;
     use rand_chacha::ChaCha8Rng;
