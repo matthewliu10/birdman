@@ -4,11 +4,16 @@ use rand::Rng;
 mod layer;
 mod neuron;
 
+#[derive(Clone, Debug)]
 pub struct Network {
     layers: Vec<Layer>,
 }
 
 impl Network {
+    pub fn new(layers: Vec<Layer>) -> Self {
+        Self { layers }
+    }
+
     // layer_info: Number of neurons in each layer of the network.
     // layer_info[0]: Size of the input given to the network.
     pub fn random(rng: &mut dyn rand::RngCore, layer_info: &[usize]) -> Self {
@@ -30,6 +35,25 @@ impl Network {
             inputs = layer.propogate(inputs);
         }
         inputs
+    }
+
+    pub fn weights(&self) -> Vec<f32> {
+        self.layers.iter().flat_map(|layer| layer.weights()).collect()
+    }
+
+    pub fn from_weights(layer_info: &[usize], weights: Vec<f32>) -> Self {
+        let mut expected_num_weights = 0;
+        for i in 1..(layer_info.len()) {
+            expected_num_weights += layer_info[i];
+            expected_num_weights += layer_info[i] * layer_info[i - 1];
+        }
+        assert!(layer_info.len() > 1);
+        assert!(expected_num_weights == weights.len());
+
+        let mut weights = weights.into_iter();
+        let layers = layer_info.windows(2).map(|layers| Layer::from_weights(layers[0], layers[1], &mut weights)).collect();
+
+        Self { layers }
     }
 }
 
@@ -99,5 +123,29 @@ mod tests {
         let expected = network.layers[1].propogate(network.layers[0].propogate(input.clone()));
 
         assert_relative_eq!(actual.as_slice(), expected.as_slice());
+    }
+
+    #[test]
+    fn test_weights() {
+        let network = Network::new(vec![
+            Layer::new(vec![Neuron::new(0.1, vec![0.2, 0.3, 0.4])]),
+            Layer::new(vec![Neuron::new(0.5, vec![0.6, 0.7, 0.8])]),
+        ]);
+
+        let actual_weights = network.weights();
+        let expected_weights = vec![0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8];
+
+        assert_relative_eq!(actual_weights.as_slice(), expected_weights.as_slice());
+    }
+
+    #[test]
+    fn from_weights() {
+        let layer_info = &[3, 2];
+        let weights = vec![0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8];
+
+        let network = Network::from_weights(layer_info, weights.clone());
+        let actual = network.weights();
+
+        assert_relative_eq!(actual.as_slice(), weights.as_slice());
     }
 }

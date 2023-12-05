@@ -1,14 +1,17 @@
 use crate::*;
 
+#[derive(Clone, Debug)]
 pub struct Neuron {
     pub(crate) bias: f32,
     pub(crate) weights: Vec<f32>,
 }
 
 impl Neuron {
-    pub fn random(rng: &mut dyn rand::RngCore, input_size: usize) -> Self {
-        // let mut rng = rand::thread_rng();
+    pub fn new(bias: f32, weights: Vec<f32>) -> Self {
+        Self { bias, weights }
+    }
 
+    pub fn random(rng: &mut dyn rand::RngCore, input_size: usize) -> Self {
         let bias = rng.gen_range(-1.0..=1.0);
 
         let mut weights = Vec::with_capacity(input_size);
@@ -29,11 +32,27 @@ impl Neuron {
 
         (output + self.bias).max(0.0)
     }
+
+    pub fn weights(&self) -> Vec<f32> {
+        let mut weights = vec![self.bias];
+        weights.extend(&self.weights);
+        weights
+    }
+
+    pub fn from_weights(num_weights: usize, weights: &mut dyn Iterator<Item = f32>) -> Self {
+        let bias = weights.next().expect("not enough weights");
+        let weights = (0..num_weights).map(|_| weights.next().expect("not enough weights")).collect();
+
+        Self {
+            bias,
+            weights,
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::*;   
     use approx::assert_relative_eq;
     use rand::SeedableRng;
     use rand_chacha::ChaCha8Rng;

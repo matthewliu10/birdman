@@ -1,10 +1,15 @@
 use crate::*;
 
+#[derive(Clone, Debug)]
 pub struct Layer {
     pub(crate) neurons: Vec<Neuron>,
 }
 
 impl Layer {
+    pub fn new(neurons: Vec<Neuron>) -> Self {
+        Self { neurons }
+    }
+
     pub fn random(rng: &mut dyn rand::RngCore, input_size: usize, num_neurons: usize) -> Self {
         let mut neurons = Vec::with_capacity(num_neurons);
 
@@ -24,6 +29,16 @@ impl Layer {
         }
 
         outputs
+    }
+
+    pub fn weights(&self) -> Vec<f32> {
+        self.neurons.iter().flat_map(|neuron| neuron.weights()).collect()
+    }
+
+    pub fn from_weights(num_inputs: usize, num_neurons: usize, weights: &mut dyn Iterator<Item = f32>) -> Self {
+        let neurons = (0..num_neurons).map(|_| Neuron::from_weights(num_inputs, weights)).collect();
+
+        Self { neurons }
     }
 }
 
